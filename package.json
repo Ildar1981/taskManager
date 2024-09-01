@@ -4,7 +4,7 @@
     "description": "Skillfactory educational project. Pure JS web-app  written with OOP.",
     "main": "app.js",
     "scripts": {
-      "start": "webpack serve --mode development",
+      "start": "webpack serve --mode development --open",
       "build": "webpack --mode production"
     },
     "repository": {

@@ -1,3 +1,30 @@
 #app-login-btn {
   width: 160px;
 }
+
+.main {
+	background: #0079BF;
+	color: white;
+	font-size: 18px;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	display: flex;
+	justify-content: space-between;
+	background: #0067A3;
+	width: 100%;
+	padding: 17px 21px;
+}
+
+.footer .link {
+	color: #80d5f9;
+	font-style: italic;
+}
+
+.footer .left {
+	display: flex;
+	flex-direction: row;
+	gap: 36px;
+}
