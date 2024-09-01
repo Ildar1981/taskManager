@@ -10,7 +10,10 @@ export const getFromStorage = function (key) {
   
   export const generateTestUser = function (User) {
     localStorage.clear();
-    const testUser = new User("test", "qwerty123");
+    const testUser = new User("login", "password");
     User.save(testUser);
   };
   
+  export const getTasks = function () {
+    return getFromStorage("tasks");
+  };

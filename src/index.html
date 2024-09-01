@@ -8,7 +8,7 @@
     <title>Simple TODO App</title>
 </head>
 
-<body class="bg-light">
+<body class="main">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -37,6 +37,19 @@
     <div class="container">
         <p id="content">Please Sign In to see your tasks!</p>
     </div>
+    <footer class="footer">
+		<!-- visibility-hidden because in HTML, we don't know if user is logged in or not. -->
+		<!-- this will be adjusted by JS -->
+		<div class="left visibility-hidden">
+			<div>Active tasks: <span id="app-active-tasks">0</span></div>
+			<div>Finished tasks: <span id="app-finished-tasks">0</span></div>
+		</div>
+		
+		<div class="right">
+			<div>Kanban board by <a href="https://github.com/Ildar1981/taskManager" class="link">Ildar</a>, 2024</div>
+		</div>
+	</footer>
+
 
 
 </body>
