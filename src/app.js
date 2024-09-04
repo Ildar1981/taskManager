@@ -8,7 +8,7 @@ import defaultTemplate from "./templates/default.html";
 import loggedOutTemplate from "./templates/headerRight/loggedOut.html";
 import loggedInTemplate from "./templates/headerRight/loggedIn.html";
 import { User } from "./models/User";
-import { Task } from "./models/Task";
+import { Task } from "./models/task";
 import { generateTestUser, getFromStorage, getTasks } from "./utils";
 import { State } from "./state";
 import { authUser, isUserAdmin } from "./services/auth";
@@ -16,15 +16,17 @@ export let backlogDiv = null;
 export let readyDiv = null;
 export let inProgressDiv = null;
 export let finishedDiv = null;
+export let reviewDiv = null;
 import { hideLeftPart, showLeftPart, toggleLeftPart, updateTaskCountInfo } from "./leftPart";
 import { v4 as uuidv4 } from "uuid";
 
-let allDivs = [backlogDiv, readyDiv, inProgressDiv, finishedDiv];
+let allDivs = [backlogDiv, readyDiv, inProgressDiv, reviewDiv, finishedDiv];
 const divsObject = {
 	get ready() { return readyDiv; },
 	get backlog() { return backlogDiv; },
 	get in_progress() { return inProgressDiv; },
-	get finished() { return finishedDiv; }
+	get finished() { return finishedDiv; },
+  get review() { return reviewDiv; }
 };
 
 const body = document.querySelector(".main");
@@ -86,7 +88,8 @@ const addLoginListener = () => {
       readyDiv = contentDiv.querySelector(".ready");
       inProgressDiv = contentDiv.querySelector(".in-progress");
       finishedDiv = contentDiv.querySelector(".finished");
-      allDivs = [backlogDiv, readyDiv, inProgressDiv, finishedDiv];
+      reviewDiv = contentDiv.querySelector(".review");
+      allDivs = [backlogDiv, readyDiv, inProgressDiv, reviewDiv, finishedDiv];
       let divs = {};
       for (let key in divsObject) divs[key] = divsObject[key];
       divs = getTaskDivs(divs);
@@ -137,14 +140,16 @@ const buttonListenerStates = {
 	backlog: false,
 	ready: false,
 	in_progress: false,
-	finished: false
+  review: false,
+	finished: false,
+  
 };
 
 function assignEventListeners(isFirstTime = false) {
 	// adding tasks
 	((isFirstTime) => {
 		const buttons = allDivs.map(div => div.querySelector(".add-button"));
-		const { backlog, ready, in_progress: inProgress, finished } = getTaskDivs(divsObject);
+		const { backlog, ready, in_progress: inProgress, review, finished } = getTaskDivs(divsObject);
 		const submitButtons = allDivs.map(div => div.querySelector(".submit-button"));
 		const addButtons = allDivs.map(div => div.querySelector(".add-button"));
 
@@ -193,10 +198,14 @@ function assignEventListeners(isFirstTime = false) {
 		} if (!buttonListenerStates.in_progress) {
 			 buttons[2].addEventListener("click", transferTaskListenerTemplate.bind(null, inProgress, "ready", "in_progress", addButtons[2]));
 			buttonListenerStates.in_progress = true;
-		} if (!buttonListenerStates.finished) {
-			buttons[3].addEventListener("click", transferTaskListenerTemplate.bind(null, finished, "in_progress", "finished", addButtons[3]));
+		} if (!buttonListenerStates.review) {
+      buttons[3].addEventListener("click", transferTaskListenerTemplate.bind(null, review,  "finished", "review", addButtons[3]));
+     buttonListenerStates.review = true;
+   }
+    if (!buttonListenerStates.finished) {
+			buttons[4].addEventListener("click", transferTaskListenerTemplate.bind(null, finished, "in_progress", "review", "finished", addButtons[4]));
 			buttonListenerStates.finished = true;
-		}
+		} 
 
 		function transferTaskListenerTemplate(taskDiv, taskGroup, transferTo, addButton) {
 			// use transferTaskListenerTemplate.bind(null, ...)
@@ -313,7 +322,7 @@ function assignEventListeners(isFirstTime = false) {
 					readyDiv = contentDiv.querySelector(".ready");
 					inProgressDiv = contentDiv.querySelector(".in-progress");
 					finishedDiv = contentDiv.querySelector(".finished");
-					allDivs = [backlogDiv, readyDiv, inProgressDiv, finishedDiv];
+					allDivs = [backlogDiv, readyDiv, inProgressDiv, review, finishedDiv];
 					showLeftPart();
 					for (let i in buttonListenerStates) buttonListenerStates[i] = false;
 					updateTasks(getTaskDivs(divsObject));
@@ -433,13 +442,13 @@ function assignEventListeners(isFirstTime = false) {
 
 	// dragging tasks
 	(() => {
-		// add more allowed targets here
 		const associations = {
-			"backlog": ["ready"],
+			"backlog": ["ready", "finished"],
 			"ready": ["backlog", "in_progress", "in-progress"],
-			"in_progress": ["ready", "finished"],
+			"in_progress": ["ready", "review", "finished"],
+      "review": ["finished"],
 			get "in-progress"() { return this.in_progress; },
-			"finished": ["in_progress"],
+			"finished": ["review", "in_progress"],
 		};
 
 		let taskDivs = allDivs;
@@ -495,9 +504,11 @@ function toggleButtonDisable() {
 	const backlogTasks = tasks.filter(task => task.group === "backlog");
 	const readyTasks = tasks.filter(task => task.group === "ready");
 	const inProgressTasks = tasks.filter(task => task.group === "in_progress");
+  const reviewTasks = tasks.filter(task => task.group === "review")
 	const finishedTasks = tasks.filter(task => task.group === "finished");
 
-	const tasksArray = [backlogTasks, readyTasks, inProgressTasks, finishedTasks];
+
+	const tasksArray = [backlogTasks, readyTasks, inProgressTasks, reviewTasks, finishedTasks];
 	for (let i in addButtons) {
 		if (tasksArray[i - 1]?.length === 0) addButtons[i].setAttribute("disabled", true);
 		else addButtons[i].removeAttribute("disabled");
