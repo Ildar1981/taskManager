@@ -118,17 +118,58 @@
 	  padding: 4px;
   }
   
+  :root {
+    --primary: #3498db; /* пример цвета */
+    --quaternary: #2ecc71; /* другой пример цвета */
+}
+
+@keyframes glowing {
+    0% { box-shadow: 0 0 5px var(--primary); }
+    50% { box-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary); }
+    100% { box-shadow: 0 0 5px var(--primary); }
+}
+@keyframes glowingSvg {
+	0% {fill:var(--primary)}
+	50% {fill:var(--white);}
+	100% {fill:var(--primary)}
+  }
   .task-list .add-button:not([disabled="true"]):hover {
-	  background: white;
+	background: #dddddd;
+	cursor: not-allowed;
+	border: 2px solid var(--primary);
+    color: var(--primary);
+    animation: glowing 2.5s ease 2s infinite;
+    padding: 10px 20px; /* добавляем немного отступов для улучшения вида */
+    border-radius: 5px; /* скругленные углы для более современного вида */
+    font-size: 16px; /* устанавливаем размер шрифта */
+    cursor: pointer; /* меняем курсор на указатель */
+    transition: background 0.3s, color 0.3s;
   }
   
   .task-list .add-button:not([disabled="true"]):active {
-	  background: #dddddd;
+    background: var(--quaternary);
+    cursor: not-allowed;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    animation: glowing 2.5s ease 2s infinite;
+    padding: 10px 20px; /* добавляем немного отступов для улучшения вида */
+    border-radius: 5px; /* скругленные углы для более современного вида */
+    font-size: 16px; /* устанавливаем размер шрифта */
+    cursor: pointer; /* меняем курсор на указатель */
+    transition: background 0.3s, color 0.3s;
   }
   
   .task-list .add-button[disabled="true"] {
-	  opacity: 0.5;
-	  cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
+	border: 2px solid var(--primary);
+    color: var(--primary);
+    animation: glowing 2.5s ease 2s infinite;
+    padding: 10px 20px; /* добавляем немного отступов для улучшения вида */
+    border-radius: 5px; /* скругленные углы для более современного вида */
+    font-size: 16px; /* устанавливаем размер шрифта */
+    cursor: pointer; /* меняем курсор на указатель */
+    transition: background 0.3s, color 0.3s; 
   }
   
   .task-list .submit-button {
