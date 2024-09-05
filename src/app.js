@@ -20,6 +20,29 @@ export let reviewDiv = null;
 import { hideLeftPart, showLeftPart, toggleLeftPart, updateTaskCountInfo } from "./leftPart";
 import { v4 as uuidv4 } from "uuid";
 
+
+const DOMElements = {
+  body: document.querySelector(".main"),
+  popup: document.querySelector(".popup-edit"),
+  popupClose: document.querySelector(".popup-close"),
+  popupCancel: document.querySelector("#popup-cancel"),
+  popupSave: document.querySelector("#popup-save"),
+  popupDelete: document.querySelector("#popup-delete"),
+  headerRightPart: document.querySelector("#header-right-part"),
+  loginForm: document.querySelector("#app-login-form"),
+  contentDiv: document.querySelector("#content")
+};
+
+const STATE = {
+  backlogDiv: null,
+  readyDiv: null,
+  inProgressDiv: null,
+  finishedDiv: null,
+  reviewDiv: null,
+  allDivs: [],
+  divsObject: {}
+};
+
 let allDivs = [backlogDiv, readyDiv, inProgressDiv, reviewDiv, finishedDiv];
 const divsObject = {
 	get ready() { return readyDiv; },
@@ -28,29 +51,14 @@ const divsObject = {
 	get finished() { return finishedDiv; },
   get review() { return reviewDiv; }
 };
-
-const body = document.querySelector(".main");
-
-const popup = document.querySelector(".popup-edit");
-const popupClose = popup.querySelector(".popup-close");
-const popupCancel = popup.querySelector("#popup-cancel");
-
-[popupClose, popupCancel].forEach(element => {
+[DOMElements.popupClose, DOMElements.popupCancel].forEach(element => {
 	element.addEventListener("click", function () {
-		body.classList.remove("popup-open");
+		DOMElements.body.classList.remove("popup-open");
 	});
 });
 
-const popupSave = document.querySelector("#popup-save");
-const popupDelete = document.querySelector("#popup-delete");
-
 export const appState = new State();
-
-const headerRightPart = document.querySelector("#header-right-part");
-let loginForm = document.querySelector("#app-login-form");
-
-const contentDiv = document.querySelector("#content");
-contentDiv.innerHTML = defaultTemplate;
+DOMElements.contentDiv.innerHTML = defaultTemplate;
 
 // generateTestUser(User);
 if (!localStorage.getItem("users")) generateTestUser(User);
@@ -61,11 +69,10 @@ if (!localStorage.getItem("admins")) {
 }
 
 const addLoginListener = () => {
-  loginForm = document.querySelector("#app-login-form");
-  if (!loginForm) return;
-  loginForm.addEventListener("submit", function (e) {
+  if (!DOMElements.loginForm) return;
+  DOMElements.loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const formData = new FormData(loginForm);
+    const formData = new FormData(DOMElements.loginForm);
     const login = formData.get("login");
     const password = formData.get("password");
     
@@ -79,16 +86,16 @@ const addLoginListener = () => {
       : loggedOutTemplate;
     
     
-    contentDiv.innerHTML = fieldHTMLContent;
-    headerRightPart.innerHTML = headerRightContent;
+    DOMElements.contentDiv.innerHTML = fieldHTMLContent;
+    DOMElements.headerRightPart.innerHTML = headerRightContent;
     
     if (isAuthSuccess) {
-      if (isUserAdmin()) body.classList.add("admin");
-      backlogDiv = contentDiv.querySelector(".backlog");
-      readyDiv = contentDiv.querySelector(".ready");
-      inProgressDiv = contentDiv.querySelector(".in-progress");
-      finishedDiv = contentDiv.querySelector(".finished");
-      reviewDiv = contentDiv.querySelector(".review");
+      if (isUserAdmin()) DOMElements.body.classList.add("admin");
+      backlogDiv = DOMElements.contentDiv.querySelector(".backlog");
+      readyDiv = DOMElements.contentDiv.querySelector(".ready");
+      inProgressDiv = DOMElements.contentDiv.querySelector(".in-progress");
+      finishedDiv = DOMElements.contentDiv.querySelector(".finished");
+      reviewDiv = DOMElements.contentDiv.querySelector(".review");
       allDivs = [backlogDiv, readyDiv, inProgressDiv, reviewDiv, finishedDiv];
       let divs = {};
       for (let key in divsObject) divs[key] = divsObject[key];
@@ -262,10 +269,9 @@ function assignEventListeners(isFirstTime = false) {
 		const logoutButton = menuList.querySelector("#app-logout-li");
 		logoutButton.addEventListener("click", () => {
 			appState.currentUser = null;
-			body.classList.remove("admin");
-			const contentDiv = document.querySelector("#content");
-			contentDiv.innerHTML = defaultTemplate;
-			headerRightPart.innerHTML = loggedOutTemplate;
+			DOMElements.body.classList.remove("admin");
+			DOMElements.contentDiv.innerHTML = defaultTemplate;
+			DOMElements.headerRightPart.innerHTML = loggedOutTemplate;
 			toggleLeftPart();
 			for (let i in buttonListenerStates) buttonListenerStates[i] = false;
 			addLoginListener();
@@ -279,19 +285,18 @@ function assignEventListeners(isFirstTime = false) {
 			userManageLi.setAttribute("title", "Mgmt — management");
 
 			userManageLi.addEventListener("click", () => {
-				const contentDiv = document.querySelector("#content");
-				contentDiv.innerHTML = userMgmtTemplate;
+				DOMElements.contentDiv.innerHTML = userMgmtTemplate;
 				
 				hideLeftPart();
 				
-				const usersList = contentDiv.querySelector(".mgmt-list.users");
-				const adminsList = contentDiv.querySelector(".mgmt-list.admins");
+				const usersList = DOMElements.contentDiv.querySelector(".mgmt-list.users");
+				const adminsList = DOMElements.contentDiv.querySelector(".mgmt-list.admins");
 
-				const noUsersP = contentDiv.querySelector("#mgmt-no-users");
-				const noAdminsP = contentDiv.querySelector("#mgmt-no-admins");
+				const noUsersP = DOMElements.contentDiv.querySelector("#mgmt-no-users");
+				const noAdminsP = DOMElements.contentDiv.querySelector("#mgmt-no-admins");
 				
-				const addUserButton = contentDiv.querySelector("#mgmt-add-user");
-				const addAdminButton = contentDiv.querySelector("#mgmt-add-admin");
+				const addUserButton = DOMElements.contentDiv.querySelector("#mgmt-add-user");
+				const addAdminButton = DOMElements.contentDiv.querySelector("#mgmt-add-admin");
 				
 				const updateUsersList = updateList.bind(null, usersList, User.storageKey, "user", noUsersP);
 				const updateAdminsList = updateList.bind(null, adminsList, User.adminStorageKey, "admin", noAdminsP);
@@ -315,13 +320,13 @@ function assignEventListeners(isFirstTime = false) {
 					updateAdminsList(adminsList);
 				});
 
-				const backButton = contentDiv.querySelector("#mgmt-back");
+				const backButton = DOMElements.contentDiv.querySelector("#mgmt-back");
 				backButton.addEventListener("click", () => {
-					contentDiv.innerHTML = taskFieldTemplate;
-					backlogDiv = contentDiv.querySelector(".backlog");
-					readyDiv = contentDiv.querySelector(".ready");
-					inProgressDiv = contentDiv.querySelector(".in-progress");
-					finishedDiv = contentDiv.querySelector(".finished");
+					DOMElements.contentDiv.innerHTML = taskFieldTemplate;
+					backlogDiv = DOMElements.contentDiv.querySelector(".backlog");
+					readyDiv = DOMElements.contentDiv.querySelector(".ready");
+					inProgressDiv = DOMElements.contentDiv.querySelector(".in-progress");
+					finishedDiv = DOMElements.contentDiv.querySelector(".finished");
 					allDivs = [backlogDiv, readyDiv, inProgressDiv, review, finishedDiv];
 					showLeftPart();
 					for (let i in buttonListenerStates) buttonListenerStates[i] = false;
@@ -404,12 +409,12 @@ function assignEventListeners(isFirstTime = false) {
 		for (let i in taskDivs) {
 			for (let task of taskDivs[i].children) {
 				task.addEventListener("click", () => {
-					body.classList.add("popup-open");
+					DOMElements.body.classList.add("popup-open");
 
 					const thisTask = getTasks().find(t => t.id === task.dataset.id);
 
-					const popupTitle = popup.querySelector("#popup-title");
-					const popupDescription = popup.querySelector("#popup-description");
+					const popupTitle = DOMElements.popup.querySelector("#popup-title");
+					const popupDescription = DOMElements.popup.querySelector("#popup-description");
 
 					popupTitle.textContent = task.textContent;
 					popupDescription.value = task.dataset.desc || "Enter description...";
@@ -428,13 +433,13 @@ function assignEventListeners(isFirstTime = false) {
 						thisTask.extendedDescription = popupDescription.value;
 						thisTask.storageKey = Task.storageKey;
 						Task.update(thisTask.id, thisTask);
-						body.classList.remove("popup-open");
+						DOMElements.body.classList.remove("popup-open");
 					};
 
-					const deleteFunction = deleteTask.bind(task, saveFunction, popupSave);
+					const deleteFunction = deleteTask.bind(task, saveFunction, DOMElements.popupSave);
 
-					popupSave.addEventListener("click", saveFunction, { once: true });
-					popupDelete.addEventListener("click", deleteFunction, { once: true });
+					DOMElements.popupSave.addEventListener("click", saveFunction, { once: true });
+					DOMElements.popupDelete.addEventListener("click", deleteFunction, { once: true });
 				});
 			}
 		}
@@ -489,7 +494,7 @@ function getTaskDivs(divs) {
 }
 
 function deleteTask(saveFn, saveButton) {
-	body.classList.remove("popup-open");
+	DOMElements.body.classList.remove("popup-open");
 	Task.deleteTask(this.dataset.id);
 	updateTasks(getTaskDivs(divsObject));
 	assignEventListeners();
@@ -506,8 +511,6 @@ function toggleButtonDisable() {
 	const inProgressTasks = tasks.filter(task => task.group === "in_progress");
   const reviewTasks = tasks.filter(task => task.group === "review")
 	const finishedTasks = tasks.filter(task => task.group === "finished");
-
-
 	const tasksArray = [backlogTasks, readyTasks, inProgressTasks, reviewTasks, finishedTasks];
 	for (let i in addButtons) {
 		if (tasksArray[i - 1]?.length === 0) addButtons[i].setAttribute("disabled", true);
